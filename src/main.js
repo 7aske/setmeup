@@ -2,31 +2,22 @@
 	const sources = require("./sources");
 	const helpers = require("./helpers");
 	const fs = require("fs");
+	const path = require("path");
+	const confJson = require("../config/config");
 
-	const champMap = await helpers.getChampionIdMap();
-
-	const champions = await sources.champGG.getChampGGChampions();
-	const allData = [];
-	for (let j = 0; j < 3; j++) {
-		const champ = champions[j];
-		const champOut = {name: champ.name, builds: []};
-		for (let i = 0; i < champ.roles.length; i++) {
-			const role = champ.roles[i];
-			const build = await sources.champGG.mustGetChampGGBuild(champ.name, role);
-			if (Object.keys(build).length !== 0) {
-				champOut.builds.push(build);
-			}
-		}
-		allData.push(champOut);
+	if (!fs.existsSync(confJson.leaguePath)) {
+		console.error("Path " + confJson.leaguePath + " does not exist");
+		process.exit(1);
 	}
+	const leagueConfFile = path.join(confJson.leaguePath, "Config/ItemSets.json");
 
-	const sets = [];
-	for (let i = 0; i < allData.length; i++) {
-		const champ = allData[i];
-		champ.builds.forEach((b,i) => {
-			const parsedSet = helpers.makeSet(champMap[champ.name], b.title, i, b.blocks, b.skills);
-			sets.push(parsedSet);
-		});
-	}
-	fs.writeFileSync("sets.json", JSON.stringify(sets));
+	let leagueFileJson = {};
+	fs.readFile(leagueConfFile, (err, res) => {
+		console.log(err);
+		if (err) process.exit(1);
+		leagueFileJson = JSON.parse(res);
+	});
+	const sets = await sources.champGG.getSets();
+	leagueFileJson.itemSets = sets;
+	fs.writeFileSync(leagueConfFile, JSON.stringify(leagueFileJson));
 })();

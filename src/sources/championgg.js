@@ -1,5 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const helpers = require("../helpers");
 
 function getSkillUps(parent) {
 	let count = 0;
@@ -31,7 +32,7 @@ function getSkillOrder(build) {
 	}).map(e => Object.keys(e)[0].toUpperCase());
 }
 
-async function getChampGGBuild(champ, role, rank) {
+async function getBuild(champ, role, rank) {
 	console.log(champ, role, rank);
 	const query = rank ? `league=${rank}` : "";
 	const ggUrl = `https://champion.gg/champion/${champ}/${role}?${query}`;
@@ -162,28 +163,39 @@ async function getChampGGBuild(champ, role, rank) {
 	return {
 		role,
 		title: `${champ} ${role}`,
-		blocks: {freqStartBuild, winStartBuild, freqFullBuild, winFullBuild},
-		skills: {freqSkillOrder, winSkillOrder},
+		sets: [{
+			blocks: {
+				name: "Most Frequent",
+				start: freqStartBuild,
+				full: freqFullBuild,
+			}, skills: freqSkillOrder,
+		}, {
+			blocks: {
+				name: "Highest Win-rate",
+				start: winStartBuild,
+				full: winFullBuild,
+			}, skills: winSkillOrder,
+		}],
 	};
 }
 
-async function mustGetChampGGBuild(champ, role) {
+async function mustGetBuild(champ, role) {
 	const leagues = ["platplus", "plat", "gold", "silver", "bronze"];
 	for (let i = 0; i < leagues.length; i++) {
 		try {
-			return await getChampGGBuild(champ, role, leagues[i]);
+			return await getBuild(champ, role, leagues[i]);
 		} catch (e) {
 			if (i < leagues.length - 1) {
-				console.error(`Cannot get build for ${champ.name} ${role} ${leagues[i]} - trying ${leagues[i + 1]}`);
+				console.error(`Cannot get build for ${champ} ${role} ${leagues[i]} - trying ${leagues[i + 1]}`);
 			} else {
-				console.error(`Cannot get any builds for ${champ.name} ${role}`);
+				console.error(`Cannot get any builds for ${champ} ${role}`);
 			}
 		}
 	}
 	return {};
 }
 
-async function getChampGGChampions() {
+async function getChampions() {
 	const url = "https://champion.gg/";
 	const res = await axios.get(url);
 	const html = res.data;
@@ -215,4 +227,41 @@ async function getChampGGChampions() {
 	return out;
 }
 
-module.exports = {getChampGGBuild, mustGetChampGGBuild, getChampGGChampions};
+async function getSets() {
+
+	const champMap = await helpers.getChampionIdMap();
+
+	const champions = await getChampions();
+	const allData = [];
+	for (let j = 0; j < champions.length; j++) {
+		const champ = champions[j];
+		const champOut = {name: champ.name, builds: []};
+		for (let i = 0; i < champ.roles.length; i++) {
+			const role = champ.roles[i];
+			const build = await mustGetBuild(champ.name, role);
+			if (Object.keys(build).length !== 0) {
+				champOut.builds.push(build);
+			}
+		}
+		allData.push(champOut);
+	}
+
+	const sets = [];
+	for (let i = 0; i < allData.length; i++) {
+		const champ = allData[i];
+		const champName = champMap[champ.name];
+		if (champName != null) {
+			champ.builds.forEach((b, i) => {
+				b.sets.forEach(bl => {
+					const title = b.title + " " + bl.blocks.name;
+					const parsedSet = helpers.makeSet(champName, title, i, bl);
+					sets.push(parsedSet);
+				});
+			});
+		}
+	}
+	return sets;
+}
+
+
+module.exports = {getSets, getBuild, mustGetBuild, getChampions};

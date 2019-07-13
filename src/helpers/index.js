@@ -22,27 +22,28 @@ function makeBlock(spellIds, name, count = 1) {
 	return block;
 }
 
-function makeSet(champ, title, rank, blocks, skills) {
+function makeSet(champ, title, rank, {blocks, skills}) {
 	const set = {
 		associatedChampions: [champ],
 		associatedMaps: [11],
 		blocks: [],
 		map: "any",
 		mode: "any",
-		preferredItemSlots:[],
+		preferredItemSlots: [],
 		sortrank: rank,
 		startedFrom: "blank",
 		title: title,
 		type: "custom",
 		uuid: uuid(),
 	};
-	const keys = Object.keys(blocks);
-	for (let i = 0; i < keys.length; i++) {
-		const block = blocks[keys[i]];
-		const blockName = `${block.name} | ${block.win_rate} (${block.game_count})`;
-		const doneBlock = makeBlock(block.ids, blockName);
-		set.blocks.push(doneBlock);
-	}
+	const skillOrder = skills.order.join(" > ");
+	const startName = `${blocks.start.name} | ${skillOrder} | ${skills.win_rate} (${skills.game_count})`;
+	const fullName = `${blocks.full.name} | ${blocks.full.win_rate} (${blocks.full.game_count})`;
+	const startBlock = makeBlock(blocks.start.ids, startName);
+	const fullBlock = makeBlock(blocks.full.ids, fullName);
+
+	set.blocks.push(startBlock);
+	set.blocks.push(fullBlock);
 	return set;
 }
 
