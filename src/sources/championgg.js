@@ -26,10 +26,43 @@ function getGamesPlayed(parent) {
 	})[1].children[0].data;
 }
 
-function getSkillOrder(build) {
-	return Array({"q": build.q["5"]}, {"w": build.w["5"]}, {"e": build.e["5"]}).sort((e1, e2) => {
+function getSkillOrder(q, e, w, r) {
+	const priority = Array({"q": q["5"]}, {"w": w["5"]}, {"e": e["5"]}).sort((e1, e2) => {
 		return Object.values(e1)[0] - Object.values(e2)[0];
 	}).map(e => Object.keys(e)[0].toUpperCase());
+	const start = {1: "", 2: "", 3: "", 4: ""};
+
+	const values = [Object.values(q), Object.values(w), Object.values(e)];
+	const translate = {
+		0: "q",
+		1: "w",
+		2: "e",
+	};
+	for (let i = 0; i < 3; i++) {
+		for (const val of values[i]) {
+			switch (val) {
+				case 1:
+					start["1"] = translate[i];
+					break;
+				case 2:
+					start["2"] = translate[i];
+					break;
+				case 3:
+					start["3"] = translate[i];
+					break;
+				case 4:
+					start["4"] = translate[i];
+					break;
+			}
+		}
+	}
+	return {priority, start};
+}
+
+function getTrinketStat(parent) {
+	const win_rate = getWinRate(parent.children[3]);
+	const games_played = getGamesPlayed(parent.children[3]);
+	return {win_rate, games_played};
 }
 
 async function getBuild(champ, role, rank) {
@@ -46,6 +79,9 @@ async function getBuild(champ, role, rank) {
 	const freqStartTitle = "Most frequent starting items ";
 
 	const spellStatSelector = "body .primary-hue .main-container .page-content .champion-area .row .skill-order";
+	const trinketStatSelector = "body .primary-hue .main-container .page-content .champion-area .row .trinket-stats div";
+	const trinketIdSelector = "body .primary-hue .main-container .page-content .champion-area .row .trinket-stats img";
+
 	const freqSpellStatSelectorQ = "body .primary-hue .main-container .page-content .champion-area .row .skill-order:nth-child(2) .skill:nth-child(2) .skill-selections";
 	const freqSpellStatSelectorW = "body .primary-hue .main-container .page-content .champion-area .row .skill-order:nth-child(2) .skill:nth-child(3) .skill-selections";
 	const freqSpellStatSelectorE = "body .primary-hue .main-container .page-content .champion-area .row .skill-order:nth-child(2) .skill:nth-child(4) .skill-selections";
@@ -57,43 +93,61 @@ async function getBuild(champ, role, rank) {
 	const winSpellStatSelectorR = "body .primary-hue .main-container .page-content .champion-area .row .skill-order:nth-child(5) .skill:nth-child(5) .skill-selections";
 
 	const freqSkillTag = $(spellStatSelector);
+	const trinketStat1Tag = $(trinketStatSelector)[0];
+	const trinketStat1Id = $(trinketIdSelector)[0];
+
+	const trinketStat2Tag = $(trinketStatSelector)[2];
+	const trinketStat2Id = $(trinketIdSelector)[1];
+
+	const winTrinketId = trinketStat1Id.attribs["data-id"];
+	const freqTrinketId = trinketStat2Id.attribs["data-id"];
+
 
 	const freqSkillTagQ = $(freqSpellStatSelectorQ)[0];
 	const freqSkillTagW = $(freqSpellStatSelectorW)[0];
 	const freqSkillTagE = $(freqSpellStatSelectorE)[0];
 	const freqSkillTagR = $(freqSpellStatSelectorR)[0];
 
-	const freqSkillOrder = {
-		q: getSkillUps(freqSkillTagQ),
-		w: getSkillUps(freqSkillTagW),
-		e: getSkillUps(freqSkillTagE),
-		r: getSkillUps(freqSkillTagR),
-		win_rate: freqSkillTag[0].next.next.children.filter(tag => {
-			return tag.name === "strong";
-		})[0].children[0].data,
-		game_count: freqSkillTag[0].next.next.children.filter(tag => {
-			return tag.name === "strong";
-		})[1].children[0].data,
-		order: "",
-	};
-	freqSkillOrder.order = getSkillOrder(freqSkillOrder);
+	if (freqSkillTagQ === undefined ||
+		freqSkillTagW === undefined ||
+		freqSkillTagE === undefined ||
+		freqSkillTagR === undefined) {
+		return {};
+	}
 
+	const freqSkillQ = getSkillUps(freqSkillTagQ);
+	const freqSkillW = getSkillUps(freqSkillTagW);
+	const freqSkillE = getSkillUps(freqSkillTagE);
+	const freqSkillR = getSkillUps(freqSkillTagR);
+
+	const freqSkillOrder = {
+		win_rate: getWinRate(freqSkillTag[0].next.next),
+		game_count: getGamesPlayed(freqSkillTag[0].next.next),
+		order: getSkillOrder(freqSkillQ, freqSkillW, freqSkillE, freqSkillR),
+	};
 
 	const winSkillTagQ = $(winSpellStatSelectorQ)[0];
 	const winSkillTagW = $(winSpellStatSelectorW)[0];
 	const winSkillTagE = $(winSpellStatSelectorE)[0];
 	const winSkillTagR = $(winSpellStatSelectorR)[0];
 
+	if (winSkillTagQ === undefined ||
+		winSkillTagW === undefined ||
+		winSkillTagE === undefined ||
+		winSkillTagR === undefined) {
+		return {};
+	}
+
+	const winSkillQ = getSkillUps(winSkillTagQ);
+	const winSkillW = getSkillUps(winSkillTagW);
+	const winSkillE = getSkillUps(winSkillTagE);
+	const winSkillR = getSkillUps(winSkillTagR);
+
 	const winSkillOrder = {
-		q: getSkillUps(winSkillTagQ),
-		w: getSkillUps(winSkillTagW),
-		e: getSkillUps(winSkillTagE),
-		r: getSkillUps(winSkillTagR),
 		win_rate: getWinRate(freqSkillTag[1].next.next),
 		game_count: getGamesPlayed(freqSkillTag[1].next.next),
-		order: "",
+		order: getSkillOrder(winSkillQ, winSkillW, winSkillE, winSkillR),
 	};
-	winSkillOrder.order = getSkillOrder(winSkillOrder);
 
 	const allBuildContainersSelector = "body .primary-hue .main-container .page-content .champion-area .row .build-wrapper";
 	const allBuildContainers = $(allBuildContainersSelector);
@@ -102,6 +156,13 @@ async function getBuild(champ, role, rank) {
 	const winFullTag = allBuildContainers[1];
 	const freqStartTag = allBuildContainers[2];
 	const winStartTag = allBuildContainers[3];
+
+	if (freqStartTag === undefined ||
+		freqFullTag === undefined ||
+		winStartTag === undefined ||
+		winFullTag === undefined) {
+		return {};
+	}
 
 	const freqFullBuild = {
 		name: freqBuildTitle,
@@ -112,12 +173,8 @@ async function getBuild(champ, role, rank) {
 		ids: freqFullTag.children.filter(c => c.name === "a").map(tag => {
 			return tag.children.filter(i => i.name === "img")[0].attribs["data-id"];
 		}),
-		win_rate: freqFullTag.children.filter(c => c.name === "div")[0].children.filter(tag => {
-			return tag.name === "strong";
-		})[0].children[0].data,
-		game_count: freqFullTag.children.filter(c => c.name === "div")[0].children.filter(tag => {
-			return tag.name === "strong";
-		})[1].children[0].data,
+		win_rate: getWinRate(freqFullTag.children.filter(c => c.name === "div")[0]),
+		game_count: getGamesPlayed(freqFullTag.children.filter(c => c.name === "div")[0]),
 
 	};
 	const winFullBuild = {
@@ -160,6 +217,12 @@ async function getBuild(champ, role, rank) {
 		game_count: getGamesPlayed(winStartTag.children.filter(c => c.name === "div")[0]),
 
 	};
+
+	winStartBuild.ids.push(winTrinketId);
+	freqStartBuild.ids.push(freqTrinketId);
+	// console.log(getTrinketStat(trinketStat1Tag));
+	// console.log(getTrinketStat(trinketStat2Tag));
+
 	return {
 		role,
 		title: `${champ} ${role}`,
@@ -182,14 +245,14 @@ async function getBuild(champ, role, rank) {
 async function mustGetBuild(champ, role) {
 	const leagues = ["platplus", "plat", "gold", "silver", "bronze"];
 	for (let i = 0; i < leagues.length; i++) {
-		try {
-			return await getBuild(champ, role, leagues[i]);
-		} catch (e) {
-			if (i < leagues.length - 1) {
-				console.error(`Cannot get build for ${champ} ${role} ${leagues[i]} - trying ${leagues[i + 1]}`);
-			} else {
-				console.error(`Cannot get any builds for ${champ} ${role}`);
-			}
+		const build = await getBuild(champ, role, leagues[i]);
+		if (Object.keys(build).length !== 0) {
+			return build;
+		}
+		if (i < leagues.length - 1) {
+			console.error(`Cannot get build for ${champ} ${role} ${leagues[i]} - trying ${leagues[i + 1]}`);
+		} else {
+			console.error(`Cannot get any builds for ${champ} ${role}`);
 		}
 	}
 	return {};
@@ -253,8 +316,8 @@ async function getSets() {
 		if (champName != null) {
 			champ.builds.forEach((b, i) => {
 				b.sets.forEach(bl => {
-					const title = b.title + " " + bl.blocks.name;
-					const parsedSet = helpers.makeSet(champName, title, i, bl);
+					const title = champ.name + " " + b.role + " " + bl.blocks.name;
+					const parsedSet = helpers.makeSet(champName, title, i, bl, b.role);
 					sets.push(parsedSet);
 				});
 			});
@@ -262,6 +325,5 @@ async function getSets() {
 	}
 	return sets;
 }
-
 
 module.exports = {getSets, getBuild, mustGetBuild, getChampions};

@@ -22,7 +22,7 @@ function makeBlock(spellIds, name, count = 1) {
 	return block;
 }
 
-function makeSet(champ, title, rank, {blocks, skills}) {
+function makeSet(champ, title, rank, {blocks, skills}, role) {
 	const set = {
 		associatedChampions: [champ],
 		associatedMaps: [11],
@@ -36,15 +36,91 @@ function makeSet(champ, title, rank, {blocks, skills}) {
 		type: "custom",
 		uuid: uuid(),
 	};
-	const skillOrder = skills.order.join(" > ");
-	const startName = `${blocks.start.name} | ${skillOrder} | ${skills.win_rate} (${skills.game_count})`;
-	const fullName = `${blocks.full.name} | ${blocks.full.win_rate} (${blocks.full.game_count})`;
+	const skillPriority = skills.order.priority.join(" > ");
+	const startSkillOrder = [];
+	Object.keys(skills.order.start).sort().forEach(key => {
+		startSkillOrder.push(skills.order.start[key].toUpperCase());
+	});
+	const startName = `${blocks.start.name} | ${startSkillOrder.join("->")} | ${skills.win_rate} (${skills.game_count})`;
+	const fullName = `${blocks.full.name}|  ${skillPriority} | ${blocks.full.win_rate} (${blocks.full.game_count})`;
 	const startBlock = makeBlock(blocks.start.ids, startName);
 	const fullBlock = makeBlock(blocks.full.ids, fullName);
-
+	if (role === "Jungle") {
+		startBlock.showIfSummonerSpell = "SummonerSmite";
+		fullBlock.hideIfSummonerSpell = "SummonerSmite";
+	}
 	set.blocks.push(startBlock);
 	set.blocks.push(fullBlock);
+	set.blocks.push(getDefaultConsumables());
+	set.blocks.push(getDefaultTrinkets());
 	return set;
+}
+
+function getDefaultConsumables() {
+	const consumables = {
+		"hideIfSummonerSpell": "",
+		"items":
+			[
+				{
+					"count": 1,
+					"id": "2003",
+				},
+				{
+					"count": 1,
+					"id": "2055",
+				},
+				{
+					"count": 1,
+					"id": "2031",
+				},
+				{
+					"count": 1,
+					"id": "2047",
+				},
+				{
+					"count": 1,
+					"id": "2033",
+				},
+				{
+					"count": 1,
+					"id": "2138",
+				},
+				{
+					"count": 1,
+					"id": "2139",
+				},
+				{
+					"count": 1,
+					"id": "2140",
+				},
+			],
+		"showIfSummonerSpell": "",
+		"type": "Consumables",
+	};
+	return consumables;
+}
+
+function getDefaultTrinkets() {
+	const trinkets = {
+		"hideIfSummonerSpell": "",
+		"items": [
+			{
+				"count": 1,
+				"id": "3340",
+			},
+			{
+				"count": 1,
+				"id": "3363",
+			},
+			{
+				"count": 1,
+				"id": "3364",
+			},
+		],
+		"showIfSummonerSpell": "",
+		"type": "Trinkets",
+	};
+	return trinkets;
 }
 
 module.exports = {getChampionIdMap, makeBlock, makeSet};

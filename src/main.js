@@ -18,6 +18,8 @@
 		leagueFileJson = JSON.parse(res);
 	});
 	const sets = await sources.champGG.getSets();
+	delete leagueConfFile.itemSets;
 	leagueFileJson.itemSets = sets;
+	fs.writeFileSync("sets.json", JSON.stringify(leagueFileJson));
 	fs.writeFileSync(leagueConfFile, JSON.stringify(leagueFileJson));
 })();
