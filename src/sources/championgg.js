@@ -66,7 +66,6 @@ function getTrinketStat(parent) {
 }
 
 async function getBuild(champ, role, rank) {
-	console.log(champ, role, rank);
 	const query = rank ? `league=${rank}` : "";
 	const ggUrl = `https://champion.gg/champion/${champ}/${role}?${query}`;
 	const res = await axios.get(ggUrl);
@@ -93,6 +92,7 @@ async function getBuild(champ, role, rank) {
 	const winSpellStatSelectorR = "body .primary-hue .main-container .page-content .champion-area .row .skill-order:nth-child(5) .skill:nth-child(5) .skill-selections";
 
 	const freqSkillTag = $(spellStatSelector);
+
 	const trinketStat1Tag = $(trinketStatSelector)[0];
 	const trinketStat1Id = $(trinketIdSelector)[0];
 
@@ -101,7 +101,6 @@ async function getBuild(champ, role, rank) {
 
 	const winTrinketId = trinketStat1Id.attribs["data-id"];
 	const freqTrinketId = trinketStat2Id.attribs["data-id"];
-
 
 	const freqSkillTagQ = $(freqSpellStatSelectorQ)[0];
 	const freqSkillTagW = $(freqSpellStatSelectorW)[0];

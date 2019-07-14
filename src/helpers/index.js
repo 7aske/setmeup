@@ -122,5 +122,6 @@ function getDefaultTrinkets() {
 	};
 	return trinkets;
 }
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-module.exports = {getChampionIdMap, makeBlock, makeSet};
+module.exports = {getChampionIdMap, makeBlock, makeSet, sleep};
