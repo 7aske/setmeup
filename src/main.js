@@ -78,7 +78,7 @@ async function main() {
 
 	const sets = [];
 	allData.forEach(champ => {
-		if (champMap.hasOwnProperty(champ.name)) {
+		if (Object.prototype.hasOwnProperty.call(champMap,champ.name)) {
 			const champId = champMap[champ.name];
 			champ.builds.forEach((build, rank) => {
 				build.sets.forEach(set => {
@@ -102,19 +102,19 @@ async function main() {
 		process.exit(1);
 	}
 
-// let leagueFileJson = {};
-// fs.readFile(leagueConfFile, (err, res) => {
-// 	if (err) process.exit(1);
-// 	leagueFileJson = JSON.parse(res);
-// });
+	let leagueFileJson = {};
+	fs.readFile(leagueConfFile, (err, res) => {
+		if (err) process.exit(1);
+		leagueFileJson = JSON.parse(res);
+	});
 
-// fs.writeFileSync(leagueConfFile + ".bak", JSON.stringify(leagueFileJson));
+	fs.writeFileSync(leagueConfFile + ".bak", JSON.stringify(leagueFileJson));
 
-// delete leagueConfFile.itemSets;
-// leagueFileJson.itemSets = sets;
+	delete leagueConfFile.itemSets;
+	leagueFileJson.itemSets = sets;
 
-// fs.writeFileSync("sets.json", JSON.stringify(leagueFileJson));
-// fs.writeFileSync(leagueConfFile, JSON.stringify(leagueFileJson));
+	fs.writeFileSync("sets.json", JSON.stringify(leagueFileJson));
+	fs.writeFileSync(leagueConfFile, JSON.stringify(leagueFileJson));
 }
 
 (async function () {

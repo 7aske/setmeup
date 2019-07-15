@@ -56,8 +56,8 @@ const taskQueue = new TaskQueue();
 			process.exit(0);
 		}
 	});
-
-	while (true) {
+	let running = true;
+	while (running) {
 		const result = await taskQueue.doTask();
 		if (result !== null) {
 			process.send(JSON.stringify({procId: PROC_ID, type: "BUILD", data: result}));
@@ -66,7 +66,7 @@ const taskQueue = new TaskQueue();
 			await helpers.sleep(100);
 		} else if (taskQueue.queue.length === 0) {
 			process.send(JSON.stringify({procId: PROC_ID, type: "INFO", data: "Tasks completed - exiting"}));
-			break;
+			running = false;
 		}
 	}
 })();

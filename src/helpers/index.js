@@ -7,7 +7,9 @@ async function getChampionIdMap() {
 	const res = await axios.get(url);
 	const data = res.data.data;
 	for (const champ in data) {
-		out[champ] = parseInt(data[champ].key);
+		if (Object.prototype.hasOwnProperty.call(data, champ)) {
+			out[champ] = parseInt(data[champ].key);
+		}
 	}
 	return out;
 }
@@ -57,7 +59,7 @@ function makeSet(champ, title, rank, {blocks, skills}, role) {
 }
 
 function getDefaultConsumables() {
-	const consumables = {
+	return {
 		"hideIfSummonerSpell": "",
 		"items":
 			[
@@ -97,11 +99,10 @@ function getDefaultConsumables() {
 		"showIfSummonerSpell": "",
 		"type": "Consumables",
 	};
-	return consumables;
 }
 
 function getDefaultTrinkets() {
-	const trinkets = {
+	return {
 		"hideIfSummonerSpell": "",
 		"items": [
 			{
@@ -120,8 +121,8 @@ function getDefaultTrinkets() {
 		"showIfSummonerSpell": "",
 		"type": "Trinkets",
 	};
-	return trinkets;
 }
+
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = {getChampionIdMap, makeBlock, makeSet, sleep};
