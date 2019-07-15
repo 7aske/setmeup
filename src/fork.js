@@ -1,20 +1,74 @@
 const sources = require("./sources");
-const fs = require("fs");
-const net = require("net");
+const helpers = require("./helpers");
+const PROC_ID = process.env.PROC_ID ? process.env.PROC_ID : "";
+let waiting = true;
+if (PROC_ID === "") {
+	process.stderr.write("Error starting forked process");
+	process.exit(1);
+}
 
-const SOCK_ADDR = process.env.SOCK_ADDR;
+class Task {
+	constructor(source, action, champ, role) {
+		this.source = source;
+		this.action = action;
+		this.champ = champ;
+		this.role = role;
+	}
+}
 
-const source = process.argv[2];
-const method = process.argv[3];
-const champ = process.argv[4];
-const role = process.argv[5];
+class TaskQueue {
+	constructor(queue = []) {
+		this.ready = true;
+		this.queue = queue;
+	}
 
-const fun = sources[source][method];
+	async doTask() {
+		if (this.queue.length > 0) {
+			const task = this.queue.pop();
+			if (task === undefined) {
+				return null;
+			}
+			this.ready = false;
+			const fun = sources[task.source][task.action];
+			const res = await fun(task.champ, task.role);
+			this.ready = true;
+			return res;
+		}
+		return null;
+	}
 
-fun(champ, role).then(res => {
-	const socket = net.createConnection(SOCK_ADDR);
-	socket.write(JSON.stringify(res));
-	socket.end();
-}).catch(err => {
-	console.error(err);
-});
+	addTask(task) {
+		this.queue.push(task);
+	}
+}
+
+const taskQueue = new TaskQueue([]);
+
+(async function () {
+	process.send(JSON.stringify({procId: PROC_ID, type: "INFO", data: "Fork started on pid " + process.pid}));
+	process.on("message", data => {
+		if (waiting) waiting = false;
+		console.log(PROC_ID, data.toString());
+		const params = data.toString().split(" ");
+		if (params[0] === "QUEUE") {
+			taskQueue.addTask(new Task(params[1], params[2], params[3], params[4]));
+		} else if (params[0] === "KILL") {
+			process.exit(0);
+		}
+	});
+
+	while (true) {
+		const result = await taskQueue.doTask();
+		if (result !== null) {
+			process.send(JSON.stringify({procId: PROC_ID, type: "BUILD", data: result}));
+		}
+		if (waiting) {
+			await helpers.sleep(100);
+		} else if (taskQueue.queue.length === 0) {
+			process.send(JSON.stringify({procId: PROC_ID, type: "INFO", data: "Tasks completed - exiting"}));
+			break;
+		}
+
+	}
+})();
+

@@ -223,6 +223,7 @@ async function getBuild(champ, role, rank) {
 	// console.log(getTrinketStat(trinketStat2Tag));
 
 	return {
+		champ,
 		role,
 		title: `${champ} ${role}`,
 		sets: [{
@@ -290,9 +291,7 @@ async function getChampions() {
 }
 
 async function getSets() {
-
 	const champMap = await helpers.getChampionIdMap();
-
 	const champions = await getChampions();
 	const allData = [];
 	for (let j = 0; j < champions.length; j++) {
@@ -309,19 +308,19 @@ async function getSets() {
 	}
 
 	const sets = [];
-	for (let i = 0; i < allData.length; i++) {
-		const champ = allData[i];
-		const champName = champMap[champ.name];
-		if (champName != null) {
-			champ.builds.forEach((b, i) => {
-				b.sets.forEach(bl => {
-					const title = champ.name + " " + b.role + " " + bl.blocks.name;
-					const parsedSet = helpers.makeSet(champName, title, i, bl, b.role);
+	allData.forEach(champ => {
+		const champId = champMap[champ.name];
+		if (champId !== null) {
+			champ.builds.forEach((build, i) => {
+				build.sets.forEach(set => {
+					const title = champ.name + " " + build.role + " " + set.blocks.name;
+					const parsedSet = helpers.makeSet(champId, title, i, set, build.role);
 					sets.push(parsedSet);
 				});
 			});
 		}
-	}
+	});
+
 	return sets;
 }
 
