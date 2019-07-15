@@ -2,6 +2,15 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const helpers = require("../helpers");
 
+async function getPatch() {
+	const url = "https://champion.gg/";
+	const res = await axios.get(url);
+	const $ = cheerio.load(res.data);
+	const patchSelector = "body .analysis-holder small strong";
+	const patchTag = $(patchSelector)[0];
+	return patchTag.children[0].data;
+}
+
 function getSkillUps(parent) {
 	let count = 0;
 	const out = {};
@@ -72,10 +81,10 @@ async function getBuild(champ, role, rank) {
 	const html = res.data;
 	const $ = cheerio.load(html);
 
-	const winBuildTitle = "Highest win-rate full build ";
-	const winStartTitle = "Highest win-rate starting items ";
-	const freqBuildTitle = "Most frequent full build ";
-	const freqStartTitle = "Most frequent starting items ";
+	const winBuildTitle = "Highest Win % Full Build ";
+	const winStartTitle = "Highest Win % Starting Items ";
+	const freqBuildTitle = "Most Frequent Full Build ";
+	const freqStartTitle = "Most Frequent Starting Items ";
 
 	const spellStatSelector = "body .primary-hue .main-container .page-content .champion-area .row .skill-order";
 	const trinketStatSelector = "body .primary-hue .main-container .page-content .champion-area .row .trinket-stats div";
@@ -245,14 +254,15 @@ async function getBuild(champ, role, rank) {
 async function mustGetBuild(champ, role) {
 	const leagues = ["platplus", "plat", "gold", "silver", "bronze"];
 	for (let i = 0; i < leagues.length; i++) {
-		const build = await getBuild(champ, role, leagues[i]);
+		const league = leagues[i];
+		const build = await getBuild(champ, role, league);
 		if (Object.keys(build).length !== 0) {
 			return build;
 		}
 		if (i < leagues.length - 1) {
-			console.error(`Cannot get build for ${champ} ${role} ${leagues[i]} - trying ${leagues[i + 1]}`);
+			console.error(`Unavailable: ${champ} ${role} ${league}`);
 		} else {
-			console.error(`Cannot get any builds for ${champ} ${role}`);
+			console.error(`Unavailable: ${champ} ${role} any`);
 		}
 	}
 	return {};
@@ -293,28 +303,27 @@ async function getChampions() {
 async function getSets() {
 	const champMap = await helpers.getChampionIdMap();
 	const champions = await getChampions();
+	const patch = await getPatch();
 	const allData = [];
-	for (let j = 0; j < champions.length; j++) {
-		const champ = champions[j];
+	champions.forEach(champ => {
 		const champOut = {name: champ.name, builds: []};
-		for (let i = 0; i < champ.roles.length; i++) {
-			const role = champ.roles[i];
+		champ.roles.forEach(async role => {
 			const build = await mustGetBuild(champ.name, role);
 			if (Object.keys(build).length !== 0) {
 				champOut.builds.push(build);
 			}
-		}
+		});
 		allData.push(champOut);
-	}
+	});
 
 	const sets = [];
 	allData.forEach(champ => {
-		const champId = champMap[champ.name];
-		if (champId !== null) {
-			champ.builds.forEach((build, i) => {
+		if (champMap.hasOwnProperty(champ.name)) {
+			const champId = champMap[champ.name];
+			champ.builds.forEach((build, rank) => {
 				build.sets.forEach(set => {
-					const title = champ.name + " " + build.role + " " + set.blocks.name;
-					const parsedSet = helpers.makeSet(champId, title, i, set, build.role);
+					const title = champ.name + " " + build.role + " " + set.blocks.name + " " + patch;
+					const parsedSet = helpers.makeSet(champId, title, rank, set, build.role);
 					sets.push(parsedSet);
 				});
 			});
@@ -324,4 +333,4 @@ async function getSets() {
 	return sets;
 }
 
-module.exports = {getSets, getBuild, mustGetBuild, getChampions};
+module.exports = {getSets, getBuild, mustGetBuild, getPatch, getChampions};

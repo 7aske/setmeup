@@ -23,7 +23,7 @@ class TaskQueue {
 	}
 
 	async doTask() {
-		if (this.queue.length > 0) {
+		if (this.queue.length > 0 && this.ready) {
 			const task = this.queue.pop();
 			if (task === undefined) {
 				return null;
@@ -42,13 +42,13 @@ class TaskQueue {
 	}
 }
 
-const taskQueue = new TaskQueue([]);
+const taskQueue = new TaskQueue();
 
 (async function () {
 	process.send(JSON.stringify({procId: PROC_ID, type: "INFO", data: "Fork started on pid " + process.pid}));
 	process.on("message", data => {
 		if (waiting) waiting = false;
-		console.log(PROC_ID, data.toString());
+		console.log("PROC", PROC_ID, data.toString());
 		const params = data.toString().split(" ");
 		if (params[0] === "QUEUE") {
 			taskQueue.addTask(new Task(params[1], params[2], params[3], params[4]));
@@ -68,7 +68,6 @@ const taskQueue = new TaskQueue([]);
 			process.send(JSON.stringify({procId: PROC_ID, type: "INFO", data: "Tasks completed - exiting"}));
 			break;
 		}
-
 	}
 })();
 

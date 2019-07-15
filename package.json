@@ -5,6 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "node src/main.js",
+    "time": "time node src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
