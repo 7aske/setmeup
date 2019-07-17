@@ -1,6 +1,7 @@
-const {dialog} = require("electron").remote;
+const {dialog, getCurrentWindow} = require("electron").remote;
 const ipcRenderer = require("electron").ipcRenderer;
 const helpers = require("../helpers");
+const sources = require("../sources");
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
@@ -16,11 +17,13 @@ const initialState = {
 	totalTasks: 0,
 	currentTasks: 0,
 	running: false,
+	source: "",
 };
 const store = new helpers.Store(initialState);
 
 const pathPickers = document.querySelectorAll(".path-picker");
 const optionPickers = document.querySelectorAll("[type='checkbox']");
+const sourcePickers = document.querySelectorAll("[type='radio']");
 
 const progressIndicator = document.querySelector("footer .progress .determinate");
 
@@ -28,7 +31,7 @@ const btnFetch = document.querySelector("#btn-fetch");
 const outputLabel = document.querySelector("#output");
 const outputInfo = document.querySelector("#output-info");
 
-let configFileJson = {leaguePath:"", args:[]};
+let configFileJson = {leaguePath: "", args: []};
 if (fs.existsSync(configFile)) {
 	configFileJson = JSON.parse(fs.readFileSync(configFile).toString());
 }
@@ -44,6 +47,7 @@ store.subscribe("leaguePath", () => {
 		label.classList.add("green");
 		store.set("leaguePathOk", true);
 		configFileJson.leaguePath = leaguePath;
+		pathInput.focus();
 		fs.writeFileSync(configFile, JSON.stringify(configFileJson));
 
 	} else {
@@ -81,6 +85,7 @@ store.subscribe("running", () => {
 	}
 });
 
+
 if (Object.prototype.hasOwnProperty.call(configFileJson, "leaguePath")) {
 	store.set("leaguePath", configFileJson["leaguePath"]);
 }
@@ -101,10 +106,10 @@ if (Object.prototype.hasOwnProperty.call(configFileJson, "args")) {
 }
 
 btnFetch.addEventListener("click", () => {
-	if (store.get("leaguePathOk") && !store.get("running")) {
+	if (store.get("leaguePathOk") && !store.get("running") && store.get("source") !== "") {
 		store.set("running", true);
 		const fork = cp.fork("./src/fetch.js", store.get("args"), {
-			env: {LEAGUE_PATH: store.get("leaguePath"), SOURCE: "champGG"},
+			env: {LEAGUE_PATH: store.get("leaguePath"), SOURCE: store.get("source")},
 			stdio: ["pipe", 1, 2, "ipc"],
 		});
 		fork.on("message", buffer => {
@@ -163,8 +168,39 @@ optionPickers.forEach(p => p.addEventListener("click", () => {
 	store.set("args", args);
 }));
 
-document.addEventListener("keydown", e=>{
+sourcePickers.forEach(async p => {
+	if (p.checked) {
+		store.set("source", p.value);
+	}
+	sources[p.value].getPatch().then(patch => {
+		p.parentElement.querySelector(".pill").innerHTML = patch;
+		p.parentElement.classList.remove("hide");
+		p.parentElement.parentElement.parentElement.children[0].classList.add("hide");
+	}).catch(err => {
+		console.error(err);
+		p.disabled = true;
+		if (p.checked) {
+			store.set("source", "");
+		}
+		p.parentElement.querySelector(".pill").innerHTML = "0.0";
+		p.parentElement.classList.remove("hide");
+		p.parentElement.parentElement.parentElement.children[0].classList.add("hide");
+	});
+	p.addEventListener("click", () => {
+		if (p.checked) {
+			store.set("source", p.value);
+		}
+	});
+});
+
+document.addEventListener("keydown", e => {
 	if (e.key === "Escape") {
-		ipcRenderer.send("app-quit",null);
+		ipcRenderer.send("app-quit", null);
+	}
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+	if (process.env.NODE_ENV === "development") {
+		getCurrentWindow().toggleDevTools();
 	}
 });

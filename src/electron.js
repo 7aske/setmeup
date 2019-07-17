@@ -21,9 +21,13 @@ async function main() {
 		width: 500,
 		title: "Set Me Up",
 		center: true,
+		resizable: false,
 		autoHideMenuBar: true,
 		webPreferences: {nodeIntegration: true},
 	});
+	if (process.env.NODE_ENV !== "development") {
+		mainWindow.setMenu(null);
+	}
 	await mainWindow.loadFile(path.join(__dirname, "views/index.html"));
 	mainWindow.on("ready-to-show", mainWindow.show);
 

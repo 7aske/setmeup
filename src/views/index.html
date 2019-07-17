@@ -17,10 +17,13 @@
 			</div>
 			<div class="file-path-wrapper">
 				<label>
-					<input class="file-path validate path-picker grey-text text-lighten-2" type="text" placeholder="LoL install folder path">
+					<input class="file-path validate path-picker grey-text text-lighten-2" type="text"
+					       placeholder="LoL install folder path" dir="rtl" tabindex="-1">
 				</label>
 			</div>
 		</div>
+		<h5 class="white-text darken-text-2">Config:</h5>
+		<hr class="opacity-50">
 		<p>
 			<label>
 				<input data-option="trinkets" type="checkbox"/>
@@ -46,18 +49,31 @@
 			</label>
 		</p>
 	</form>
+	<h5 class="white-text darken-text-2">Source:</h5>
 	<hr class="opacity-50">
-	<button id="btn-fetch" class="btn waves-effect waves-light" type="button">Import
-	</button>
+	<div>
+		<div class="progress">
+			<div class="indeterminate"></div>
+		</div>
+		<p>
+			<label class="hide">
+				<input class="with-gap" value="champGG" name="source" type="radio" checked/>
+				<span>Champion.gg</span><span class="badge pill teal lighten-1 white-text z-depth-3"></span>
+			</label>
+		</p>
+	</div>
+
 
 </main>
 <footer class="container">
-	<div class="progress">
+	<div class="right-align">
+		<button id="btn-fetch" class="btn waves-effect waves-light" type="button">Import</button>
+	</div>
+	<div class="progress mt-3">
 		<div class="determinate" style="width: 0"></div>
 	</div>
-	<ul class="collection no-border">
-		<li class="collection-item grey-text lighten-text-2 grey darken-4" style="padding: 2px; margin-top: -5px;"><span id="output"></span><span id="output-info" class="new badge">0</span></li>
-	</ul>
+	<span id="output" class="grey-text lighten-text-2"></span><span id="output-info"
+	                                                                class="teal lighten-1 white-text badge new">0</span></li>
 </footer>
 <script src="../renderer.js"></script>
 </body>

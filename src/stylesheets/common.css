@@ -7,11 +7,15 @@ body, html {
 main {
   position: relative;
   overflow: hidden;
-  height: 90vh;
+  height: 83vh;
 }
 
 footer {
-  height: 10vh;
+  height: 17vh;
+}
+footer #output-info {
+  width: 85px;
+  border-radius: 5px !important;
 }
 
 .opacity-50 {
@@ -20,4 +24,30 @@ footer {
 
 .no-border {
   border: none !important;
+}
+
+.pill {
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 12px !important;
+}
+
+.pill-new {
+  border-radius: 10px !important;
+  font-weight: 700;
+}
+.pill-new:before {
+  content: "new ";
+}
+
+.p-3 {
+  padding: 1rem 1rem !important;
+}
+
+.mt-3 {
+  margin-top: 1rem !important;
+}
+
+.m-3 {
+  margin: 1rem 1rem !important;
 }

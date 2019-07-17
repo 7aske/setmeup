@@ -39,14 +39,15 @@ function getSkillOrder(q, e, w, r) {
 	const priority = Array({"q": q["5"]}, {"w": w["5"]}, {"e": e["5"]}).sort((e1, e2) => {
 		return Object.values(e1)[0] - Object.values(e2)[0];
 	}).map(e => Object.keys(e)[0].toUpperCase());
-	const start = {1: "", 2: "", 3: "", 4: ""};
 
+	const start = {1: "", 2: "", 3: "", 4: ""};
 	const values = [Object.values(q), Object.values(w), Object.values(e)];
 	const translate = {
 		0: "q",
 		1: "w",
 		2: "e",
 	};
+
 	for (let i = 0; i < 3; i++) {
 		for (const val of values[i]) {
 			switch (val) {
