@@ -1,5 +1,6 @@
 const axios = require("axios");
 const cheerio = require("cheerio");
+const champGG = require("./championgg");
 const uuid = require("uuid/v1");
 
 async function getBuild(champ, role = "General", args = []) {
@@ -30,7 +31,7 @@ async function getBuild(champ, role = "General", args = []) {
 	return {
 		champ,
 		role,
-		title: `${champ} Most Frequent`,
+		title: `${champ} ${role} Most Frequent`,
 		sets: [{
 			blocks: {
 				name: freqBuildTitle,
@@ -78,11 +79,14 @@ function makeSet(champ, title, rank, {blocks}) {
 	return set;
 }
 
+async function getChampions(){
+	const champions = await champGG.getChampions();
+	champions.forEach(c => c.builds = ["General"]);
+	return champions;
+}
+
 async function getPatch() {
 	return new Date().toLocaleDateString();
 }
 
-(async function () {
-	console.log(await getBuild("Tryndamere"));
-})();
-module.exports = {getBuild, mustGetBuild, makeSet, makeBlock, getPatch};
+module.exports = {getBuild, mustGetBuild, makeSet, makeBlock, getPatch, getChampions};

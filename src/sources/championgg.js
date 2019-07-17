@@ -302,7 +302,7 @@ async function getChampions() {
 	champContainers.forEach(champ => {
 		const champOut = {
 			name: "",
-			roles: [],
+			builds: [],
 		};
 		const props = champ.children.filter(e => e.name === "div")[0].children.filter(e => e.name === "a");
 		props.forEach((prop, i) => {
@@ -311,7 +311,7 @@ async function getChampions() {
 			if (i === 0) {
 				champOut.name = data;
 			} else {
-				champOut.roles.push(data);
+				champOut.builds.push(data);
 			}
 		});
 		out.push(champOut);

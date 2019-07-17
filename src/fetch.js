@@ -19,15 +19,16 @@ async function main() {
 
 	const allData = [];
 	const forks = [];
-
+	console.log(sources, SOURCE);
+	console.log(sources[SOURCE].getChampions);
 	const champMap = await helpers.getChampionIdMap();
-	const champions = await sources.champGG.getChampions();
-	const patch = await sources.champGG.getPatch();
+	const champions = await sources[SOURCE].getChampions();
+	const patch = await sources[SOURCE].getPatch();
 
 	let remainingTasks = 0;
 
 	champions.forEach(c => {
-		remainingTasks += c.roles.length;
+		remainingTasks += c.builds.length;
 	});
 
 	for (let PROC_ID = 0; PROC_ID < PROC_COUNT; PROC_ID++) {
@@ -74,7 +75,7 @@ async function main() {
 		champions.forEach((champ, j) => {
 			const champOut = {name: champ.name, builds: []};
 			allData.push(champOut);
-			champ.roles.forEach(role => {
+			champ.builds.forEach(role => {
 				forks[currProc].send(`QUEUE ${SOURCE} mustGetBuild ${champ.name} ${role}`);
 				currProc = currProc === forks.length - 1 ? 0 : currProc + 1;
 			});
@@ -88,8 +89,7 @@ async function main() {
 			const champId = champMap[champ.name];
 			champ.builds.forEach((build, rank) => {
 				build.sets.forEach(set => {
-					const title = champ.name + " " + build.role + " " + set.blocks.name + " " + patch;
-					console.log(SOURCE);
+					const title = `${champ.name} ${build.role} ${set.blocks.name} ${patch}`;
 					const parsedSet = sources[SOURCE].makeSet(champId, title, rank, set, build.role);
 					if (process.argv.indexOf("consumables") !== -1) {
 						parsedSet.blocks.push(helpers.miscBlocks.getDefaultConsumables());
@@ -106,7 +106,7 @@ async function main() {
 	for (const fork of forks) {
 		fork.kill();
 	}
-	process.send(JSON.stringify({type: "DONE", procId: 0, data: "Done."}));
+
 
 	const leagueConfFile = path.join(LEAGUE_PATH, "Config/ItemSets.json");
 	if (!fs.existsSync(leagueConfFile)) {
@@ -120,12 +120,15 @@ async function main() {
 	fs.writeFileSync(leagueConfFile + ".bak", JSON.stringify(leagueFileJson));
 
 	delete leagueFileJson.itemSets;
+	// Object.defineProperty(leagueFileJson, "itemSets", {value:sets});
 	leagueFileJson.itemSets = sets;
 
 	fs.writeFileSync(leagueConfFile, JSON.stringify(leagueFileJson));
 	fs.writeFileSync(path.join(__dirname, "data/sets.json"), JSON.stringify(leagueFileJson));
 
 	process.send(JSON.stringify({type: "INFO", procId: 0, data: `Sets exported to successfully.`}));
+
+	process.send(JSON.stringify({type: "DONE", procId: 0, data: "Done."}));
 }
 
 (async function () {

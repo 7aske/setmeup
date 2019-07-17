@@ -85,6 +85,9 @@ store.subscribe("running", () => {
 	}
 });
 
+store.subscribe("source", ()=>{
+	console.log(store.get("source"));
+});
 
 if (Object.prototype.hasOwnProperty.call(configFileJson, "leaguePath")) {
 	store.set("leaguePath", configFileJson["leaguePath"]);
@@ -106,7 +109,6 @@ if (Object.prototype.hasOwnProperty.call(configFileJson, "args")) {
 }
 
 btnFetch.addEventListener("click", () => {
-	console.log(store.get("source"));
 	if (store.get("leaguePathOk") && !store.get("running") && store.get("source") !== "") {
 		store.set("running", true);
 		const fork = cp.fork("./src/fetch.js", store.get("args"), {
