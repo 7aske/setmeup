@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<link rel="stylesheet" href="../stylesheets/common.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+<body class="grey darken-4">
+<main class="container">
+	<form action="#">
+		<div class="file-field input-field">
+			<div class="btn cyan darken-1">
+				<span>LoL  path:</span>
+				<input type="file" class="path-picker">
+			</div>
+			<div class="file-path-wrapper">
+				<label>
+					<input class="file-path validate path-picker grey-text text-lighten-2" type="text" placeholder="LoL install folder path">
+				</label>
+			</div>
+		</div>
+		<p>
+			<label>
+				<input data-option="trinkets" type="checkbox"/>
+				<span class="grey-text text-lighten-2">Trinkets</span>
+			</label>
+		</p>
+		<p>
+			<label>
+				<input data-option="consumables" type="checkbox"/>
+				<span class="grey-text text-lighten-2">Consumables</span>
+			</label>
+		</p>
+		<p>
+			<label>
+				<input data-option="backup" type="checkbox"/>
+				<span class="grey-text text-lighten-2">Backup</span>
+			</label>
+		</p>
+		<p>
+			<label>
+				<input data-option="merge" type="checkbox"/>
+				<span class="grey-text text-lighten-2">Merge Sets</span>
+			</label>
+		</p>
+	</form>
+	<hr class="opacity-50">
+	<button id="btn-fetch" class="btn waves-effect waves-light" type="button">Import
+	</button>
+
+</main>
+<footer class="container">
+	<div class="progress">
+		<div class="determinate" style="width: 0"></div>
+	</div>
+	<ul class="collection no-border">
+		<li class="collection-item grey-text lighten-text-2 grey darken-4" style="padding: 2px; margin-top: -5px;"><span id="output"></span><span id="output-info" class="new badge">0</span></li>
+	</ul>
+</footer>
+<script src="../renderer.js"></script>
+</body>
+</html>

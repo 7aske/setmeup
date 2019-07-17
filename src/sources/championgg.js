@@ -74,7 +74,7 @@ function getTrinketStat(parent) {
 	return {win_rate, games_played};
 }
 
-async function getBuild(champ, role, rank) {
+async function getBuild(champ, role, rank, args = []) {
 	const query = rank ? `league=${rank}` : "";
 	const ggUrl = `https://champion.gg/champion/${champ}/${role}?${query}`;
 	const res = await axios.get(ggUrl);
@@ -230,32 +230,49 @@ async function getBuild(champ, role, rank) {
 	freqStartBuild.ids.push(freqTrinketId);
 	// console.log(getTrinketStat(trinketStat1Tag));
 	// console.log(getTrinketStat(trinketStat2Tag));
+	if (args.indexOf("merge") !== -1) {
+		return {
+			champ,
+			role,
+			title: `${champ} ${role}`,
+			sets: [
+				{
+					blocks: {
+						name: "Most Frequent",
+						start: freqStartBuild,
+						full: freqFullBuild,
+					},
+					skills: freqSkillOrder,
+				}],
+		};
+	} else {
+		return {
+			champ,
+			role,
+			title: `${champ} ${role}`,
+			sets: [{
+				blocks: {
+					name: "Most Frequent",
+					start: freqStartBuild,
+					full: freqFullBuild,
+				}, skills: freqSkillOrder,
+			}, {
+				blocks: {
+					name: "Highest Win-rate",
+					start: winStartBuild,
+					full: winFullBuild,
+				}, skills: winSkillOrder,
+			}],
+		};
+	}
 
-	return {
-		champ,
-		role,
-		title: `${champ} ${role}`,
-		sets: [{
-			blocks: {
-				name: "Most Frequent",
-				start: freqStartBuild,
-				full: freqFullBuild,
-			}, skills: freqSkillOrder,
-		}, {
-			blocks: {
-				name: "Highest Win-rate",
-				start: winStartBuild,
-				full: winFullBuild,
-			}, skills: winSkillOrder,
-		}],
-	};
 }
 
-async function mustGetBuild(champ, role) {
+async function mustGetBuild(champ, role, args = []) {
 	const leagues = ["platplus", "plat", "gold", "silver", "bronze"];
 	for (let i = 0; i < leagues.length; i++) {
 		const league = leagues[i];
-		const build = await getBuild(champ, role, league);
+		const build = await getBuild(champ, role, league, args);
 		if (Object.keys(build).length !== 0) {
 			return build;
 		}

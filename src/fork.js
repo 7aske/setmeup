@@ -2,17 +2,21 @@ const sources = require("./sources");
 const helpers = require("./helpers");
 const PROC_ID = process.env.PROC_ID ? process.env.PROC_ID : "";
 let waiting = true;
+// if (process.env.NODE_ENV !== "development") {
+// 	__dirname = path.join(__dirname, "resources/app");
+// }
 if (PROC_ID === "") {
 	process.stderr.write("Error starting forked process");
 	process.exit(1);
 }
 
 class Task {
-	constructor(source, action, champ, role) {
+	constructor(source, action, champ, role, args = []) {
 		this.source = source;
 		this.action = action;
 		this.champ = champ;
 		this.role = role;
+		this.args = args;
 	}
 }
 
@@ -30,7 +34,7 @@ class TaskQueue {
 			}
 			this.ready = false;
 			const fun = sources[task.source][task.action];
-			const res = await fun(task.champ, task.role);
+			const res = await fun(task.champ, task.role, task.args);
 			this.ready = true;
 			return res;
 		}
@@ -51,7 +55,7 @@ const taskQueue = new TaskQueue();
 		console.log("PROC", PROC_ID, data.toString());
 		const params = data.toString().split(" ");
 		if (params[0] === "QUEUE") {
-			taskQueue.addTask(new Task(params[1], params[2], params[3], params[4]));
+			taskQueue.addTask(new Task(params[1], params[2], params[3], params[4], process.argv.slice(2)));
 		} else if (params[0] === "KILL") {
 			process.exit(0);
 		}

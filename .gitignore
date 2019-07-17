@@ -1,4 +1,7 @@
 node_modules
 .idea
 .vscode
-out
+data/**.*
+src/data/**.*
+src/config/**.*
+build

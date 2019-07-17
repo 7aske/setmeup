@@ -1,0 +1,22 @@
+body, html {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+}
+
+main {
+	position: relative;
+	overflow: hidden;
+	height: 90vh;
+}
+
+footer {
+	height: 10vh;
+}
+.opacity-50{
+	filter:opacity(.5);
+}
+.no-border {
+	border: none !important;
+}
+

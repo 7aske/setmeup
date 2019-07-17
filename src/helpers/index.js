@@ -1,5 +1,9 @@
 const axios = require("axios");
+const fs = require("fs");
+const path = require("path");
 const uuid = require("uuid/v1");
+const miscBlocks = require("./miscBlocks");
+const Store = require("./store");
 
 async function getChampionIdMap() {
 	const out = {};
@@ -53,76 +57,15 @@ function makeSet(champ, title, rank, {blocks, skills}, role) {
 	}
 	set.blocks.push(startBlock);
 	set.blocks.push(fullBlock);
-	set.blocks.push(getDefaultConsumables());
-	set.blocks.push(getDefaultTrinkets());
 	return set;
 }
 
-function getDefaultConsumables() {
-	return {
-		"hideIfSummonerSpell": "",
-		"items":
-			[
-				{
-					"count": 1,
-					"id": "2003",
-				},
-				{
-					"count": 1,
-					"id": "2055",
-				},
-				{
-					"count": 1,
-					"id": "2031",
-				},
-				{
-					"count": 1,
-					"id": "2047",
-				},
-				{
-					"count": 1,
-					"id": "2033",
-				},
-				{
-					"count": 1,
-					"id": "2138",
-				},
-				{
-					"count": 1,
-					"id": "2139",
-				},
-				{
-					"count": 1,
-					"id": "2140",
-				},
-			],
-		"showIfSummonerSpell": "",
-		"type": "Consumables",
-	};
-}
-
-function getDefaultTrinkets() {
-	return {
-		"hideIfSummonerSpell": "",
-		"items": [
-			{
-				"count": 1,
-				"id": "3340",
-			},
-			{
-				"count": 1,
-				"id": "3363",
-			},
-			{
-				"count": 1,
-				"id": "3364",
-			},
-		],
-		"showIfSummonerSpell": "",
-		"type": "Trinkets",
-	};
+function verifyPath(p) {
+	const lolExe = path.join(p, "LeagueClient.exe");
+	const confFile = path.join(p, "Config/ItemSets.json");
+	return fs.existsSync(lolExe) && fs.existsSync(confFile);
 }
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-module.exports = {getChampionIdMap, makeBlock, makeSet, sleep};
+module.exports = {getChampionIdMap, makeBlock, makeSet, sleep, Store, miscBlocks, verifyPath};

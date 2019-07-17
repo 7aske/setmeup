@@ -2,11 +2,13 @@
   "name": "setmeup",
   "version": "1.0.0",
   "description": "",
-  "main": "src/main.js",
+  "main": "src/electron.js",
   "scripts": {
-    "start": "node src/main.js",
-    "time": "time node src/main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "electron": "NODE_ENV=development electron src/electron.js",
+    "start": "NODE_ENV=development node src/fetch.js",
+    "time": "NODE_ENV=development time node src/fetch.js",
+    "build-linux": "electron-packager ./ setmeup --out=./build --platform=linux --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore",
+    "build-windows": "electron-packager ./ setmeup --out=./build --platform=win32 --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +19,8 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "electron": "^5.0.6",
+    "electron-packager": "^14.0.1",
     "eslint": "^6.0.1"
   }
 }
