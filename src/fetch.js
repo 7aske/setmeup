@@ -89,7 +89,8 @@ async function main() {
 			champ.builds.forEach((build, rank) => {
 				build.sets.forEach(set => {
 					const title = champ.name + " " + build.role + " " + set.blocks.name + " " + patch;
-					const parsedSet = helpers.makeSet(champId, title, rank, set, build.role);
+					console.log(SOURCE);
+					const parsedSet = sources[SOURCE].makeSet(champId, title, rank, set, build.role);
 					if (process.argv.indexOf("consumables") !== -1) {
 						parsedSet.blocks.push(helpers.miscBlocks.getDefaultConsumables());
 					}
@@ -105,7 +106,6 @@ async function main() {
 	for (const fork of forks) {
 		fork.kill();
 	}
-
 	process.send(JSON.stringify({type: "DONE", procId: 0, data: "Done."}));
 
 	const leagueConfFile = path.join(LEAGUE_PATH, "Config/ItemSets.json");
@@ -119,7 +119,7 @@ async function main() {
 
 	fs.writeFileSync(leagueConfFile + ".bak", JSON.stringify(leagueFileJson));
 
-	delete leagueConfFile.itemSets;
+	delete leagueFileJson.itemSets;
 	leagueFileJson.itemSets = sets;
 
 	fs.writeFileSync(leagueConfFile, JSON.stringify(leagueFileJson));

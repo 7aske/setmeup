@@ -106,6 +106,7 @@ if (Object.prototype.hasOwnProperty.call(configFileJson, "args")) {
 }
 
 btnFetch.addEventListener("click", () => {
+	console.log(store.get("source"));
 	if (store.get("leaguePathOk") && !store.get("running") && store.get("source") !== "") {
 		store.set("running", true);
 		const fork = cp.fork("./src/fetch.js", store.get("args"), {
@@ -148,6 +149,7 @@ pathPickers.forEach(p => {
 	p.addEventListener("click", e => {
 		e.preventDefault();
 		const pth = dialog.showOpenDialog({
+			defaultPath: store.get("leaguePath"),
 			properties: ["openDirectory"],
 		});
 		if (pth !== undefined) {
