@@ -25,10 +25,10 @@ async function main() {
 		autoHideMenuBar: true,
 		webPreferences: {nodeIntegration: true},
 	});
-	if (process.env.NODE_ENV !== "development") {
-		mainWindow.setMenu(null);
-	}
-	await mainWindow.loadFile(path.join(__dirname, "views/index.html"));
+	// if (process.env.NODE_ENV !== "development") {
+	// 	mainWindow.setMenu(null);
+	// }
+	await mainWindow.loadFile(path.join(__dirname, "index.html"));
 	mainWindow.on("ready-to-show", mainWindow.show);
 
 }

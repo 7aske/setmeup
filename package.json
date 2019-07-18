@@ -7,7 +7,7 @@
     "electron": "NODE_ENV=development electron src/electron.js",
     "start": "NODE_ENV=development node src/fetch.js",
     "time": "NODE_ENV=development time node src/fetch.js",
-    "build-linux": "electron-packager ./ setmeup --out=./build --platform=linux --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore",
+    "build-linux": "electron-packager ./ setmeup --out=./build --platform=linux --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore &&  sudo chown root:root ./build/setmeup-linux-x64/chrome-sandbox && sudo chmod 4755 ./build/setmeup-linux-x64/chrome-sandbox",
     "build-windows": "electron-packager ./ setmeup --out=./build --platform=win32 --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
   "dependencies": {
     "axios": "^0.19.0",
     "cheerio": "^1.0.0-rc.3",
+    "materialize-css": "^1.0.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

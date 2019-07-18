@@ -1,14 +1,14 @@
 const {dialog, getCurrentWindow} = require("electron").remote;
 const ipcRenderer = require("electron").ipcRenderer;
-const helpers = require("../helpers");
-const sources = require("../sources");
+const helpers = require("./helpers");
+const sources = require("./sources");
 const cp = require("child_process");
 const fs = require("fs");
 const path = require("path");
 // if (process.env.NODE_ENV !== "development") {
 // 	__dirname = path.join(__dirname, "resources/app");
 // }
-const configFile = path.join(__dirname, "../config/config.json");
+const configFile = path.join(__dirname, "config/config.json");
 
 const initialState = {
 	args: [],
