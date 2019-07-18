@@ -4,11 +4,17 @@ const champGG = require("./championgg");
 const helpers = require("../helpers");
 const uuid = require("uuid/v1");
 
+let items;
+const itemsUrl = "https://static.u.gg/assets/lol/riot_static/9.14.1/data/en_US/item.json";
+(async function () {
+	items = (await axios.get(itemsUrl)).data;
+})();
+
 function getSkillUps(parent) {
 	return parent.children[2].children.filter(c => c.children[0].children.length !== 0).map(c => parseInt(c.children[0].children[0].data));
 }
 
-function getItemsFromContainer(items, cont) {
+function getItemsFromContainer(cont) {
 	return cont.map(c => {
 		const style = c.children[0].children[0].children[0].attribs["style"];
 		const attribs = style.split(";");
@@ -24,8 +30,6 @@ function getItemsFromContainer(items, cont) {
 }
 
 async function getBuild(champ, role = "", league, args = []) {
-	const itemsUrl = "https://static.u.gg/assets/lol/riot_static/9.14.1/data/en_US/item.json";
-	const items = (await axios.get(itemsUrl)).data;
 	const url = `https://u.gg/lol/champions/${helpers.capitalize(champ)}/build?role=${role.toLowerCase()}`;
 	const res = await axios.get(url);
 	const html = res.data;
@@ -51,11 +55,11 @@ async function getBuild(champ, role = "", league, args = []) {
 		return {};
 	}
 
-	const itemsBlockStartItems = getItemsFromContainer(items, itemsTag.children);
-	const itemsCore = getItemsFromContainer(items, itemsCoreTag.children.filter(c => c.name === "div"));
-	const itemFour = getItemsFromContainer(items, itemFourTag.children.map(c => c.children[0]));
-	const itemFive = getItemsFromContainer(items, itemFiveTag.children.map(c => c.children[0]));
-	const itemSix = getItemsFromContainer(items, itemSixTag.children.map(c => c.children[0]));
+	const itemsBlockStartItems = getItemsFromContainer(itemsTag.children);
+	const itemsCore = getItemsFromContainer(itemsCoreTag.children.filter(c => c.name === "div"));
+	const itemFour = getItemsFromContainer(itemFourTag.children.map(c => c.children[0]));
+	const itemFive = getItemsFromContainer(itemFiveTag.children.map(c => c.children[0]));
+	const itemSix = getItemsFromContainer(itemSixTag.children.map(c => c.children[0]));
 
 	const skillOrderSelector = "#content > div > div > div.champion-profile-page > div > div._grid-2._grid-columns > div.grid-block.skill-path-block > div.grid-block-content > div > div > div";
 	const skillOrderTag = $(skillOrderSelector)[0];
@@ -107,7 +111,7 @@ async function getBuild(champ, role = "", league, args = []) {
 				items: itemSix.map(b => b.id),
 			},
 			],
-			name: "Most Frequent"
+			name: "Most Frequent",
 		}],
 	};
 }
