@@ -119,10 +119,12 @@ async function main() {
 	}
 	let leagueFileJson = JSON.parse(fs.readFileSync(leagueConfFile).toString());
 
-	fs.writeFileSync(leagueConfFile + ".bak", JSON.stringify(leagueFileJson));
+	if (process.argv.indexOf("backup") !== -1){
+		fs.writeFileSync(leagueConfFile + ".bak", JSON.stringify(leagueFileJson));
+		fs.writeFileSync(path.join(__dirname, "data/sets.json.bak"), JSON.stringify(leagueFileJson));
+	}
 
 	delete leagueFileJson.itemSets;
-	// Object.defineProperty(leagueFileJson, "itemSets", {value:sets});
 	leagueFileJson.itemSets = sets;
 
 	fs.writeFileSync(leagueConfFile, JSON.stringify(leagueFileJson));
