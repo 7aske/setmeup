@@ -89,15 +89,17 @@ async function main() {
 			const champId = champMap[champ.name];
 			champ.builds.forEach((build, rank) => {
 				build.sets.forEach(set => {
-					const title = `${champ.name} ${build.role} ${set.blocks.name} ${patch}`;
-					const parsedSet = sources[SOURCE].makeSet(champId, title, rank, set, build.role);
-					if (process.argv.indexOf("consumables") !== -1) {
-						parsedSet.blocks.push(helpers.miscBlocks.getDefaultConsumables());
+					if (set !== undefined) {
+						const title = `${champ.name} ${build.role} ${set.name} ${patch}`;
+						const parsedSet = sources[SOURCE].makeSet(champId, title, rank, set, build.role);
+						if (process.argv.indexOf("consumables") !== -1) {
+							parsedSet.blocks.push(helpers.miscBlocks.getDefaultConsumables());
+						}
+						if (process.argv.indexOf("trinkets") !== -1) {
+							parsedSet.blocks.push(helpers.miscBlocks.getDefaultTrinkets());
+						}
+						sets.push(parsedSet);
 					}
-					if (process.argv.indexOf("trinkets") !== -1) {
-						parsedSet.blocks.push(helpers.miscBlocks.getDefaultTrinkets());
-					}
-					sets.push(parsedSet);
 				});
 			});
 		}

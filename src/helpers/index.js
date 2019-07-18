@@ -24,6 +24,9 @@ function verifyPath(p) {
 	return fs.existsSync(lolExe) && fs.existsSync(confFile);
 }
 
+const capitalize = string => {
+	return string.charAt(0).toUpperCase().concat(string.substring(1));
+};
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-module.exports = {getChampionIdMap, sleep, Store, miscBlocks, verifyPath};
+module.exports = {getChampionIdMap, sleep, Store, miscBlocks, verifyPath, capitalize};

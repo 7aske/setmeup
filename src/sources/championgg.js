@@ -239,8 +239,8 @@ async function getBuild(champ, role, rank, args = []) {
 			title: `${champ} ${role}`,
 			sets: [
 				{
+					name: "Most Frequent",
 					blocks: {
-						name: "Most Frequent",
 						start: freqStartBuild,
 						full: freqFullBuild,
 					},
@@ -253,14 +253,14 @@ async function getBuild(champ, role, rank, args = []) {
 			role,
 			title: `${champ} ${role}`,
 			sets: [{
+				name: "Most Frequent",
 				blocks: {
-					name: "Most Frequent",
 					start: freqStartBuild,
 					full: freqFullBuild,
 				}, skills: freqSkillOrder,
 			}, {
+				name: "Highest Win-rate",
 				blocks: {
-					name: "Highest Win-rate",
 					start: winStartBuild,
 					full: winFullBuild,
 				}, skills: winSkillOrder,
@@ -319,39 +319,6 @@ async function getChampions() {
 	return out;
 }
 
-async function getSets() {
-	const champMap = await helpers.getChampionIdMap();
-	const champions = await getChampions();
-	const patch = await getPatch();
-	const allData = [];
-	champions.forEach(champ => {
-		const champOut = {name: champ.name, builds: []};
-		champ.roles.forEach(async role => {
-			const build = await mustGetBuild(champ.name, role);
-			if (Object.keys(build).length !== 0) {
-				champOut.builds.push(build);
-			}
-		});
-		allData.push(champOut);
-	});
-
-	const sets = [];
-	allData.forEach(champ => {
-		if (champMap.hasOwnProperty(champ.name)) {
-			const champId = champMap[champ.name];
-			champ.builds.forEach((build, rank) => {
-				build.sets.forEach(set => {
-					const title = champ.name + " " + build.role + " " + set.blocks.name + " " + patch;
-					const parsedSet = helpers.makeSet(champId, title, rank, set, build.role);
-					sets.push(parsedSet);
-				});
-			});
-		}
-	});
-
-	return sets;
-}
-
 function makeBlock(spellIds, name, count = 1) {
 	const block = {hideIfSummonerSpell: "", items: [], showIfSummonerSpell: "", type: name};
 	for (let i = 0; i < spellIds.length; i++) {
@@ -395,4 +362,4 @@ function makeSet(champ, title, rank, {blocks, skills}, role) {
 	return set;
 }
 
-module.exports = {getSets, getBuild, mustGetBuild, getPatch, getChampions, makeSet};
+module.exports = {getBuild, mustGetBuild, getPatch, getChampions, makeSet};
