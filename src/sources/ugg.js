@@ -149,21 +149,23 @@ function makeSet(champ, title, rank = 0, {blocks, name}, role) {
 }
 
 async function getChampions() {
-	// TODO: get champions from ugg
+	// champion.gg has the list of most popular roles
+	// so its better to use that rather than getting
+	// Cait support builds for no reason
 	return await champGG.getChampions();
 }
 
 async function getPatch() {
-	// TODO: get patch from ugg
-	return await champGG.getPatch();
+	const url = "https://u.gg/lol/champions/annie/build";
+	const res = await axios.get(url);
+	const html = res.data;
+
+	const $ = cheerio.load(html);
+
+	const patchSelector = "#content > div > div > div.filter-manager > div > div > div:nth-child(5) > div.default-select.filter-select.css-1y6z7r9 > div > div.default-select__value-container.default-select__value-container--has-value.css-1hwfws3 > div > div > span";
+	const patchTag = $(patchSelector)[0].children[0];
+	console.log(patchTag);
+	return patchTag.data;
 }
 
-// (async function () {
-// 	const build = await getBuild("Hecarim", "Top");
-// 	// TODO: champ id instead of name
-// 	for (const set of build.sets){
-// 		const parsedset = makeSet("Hecarim", build.title, 0, set.blocks);
-// 		console.log(parsedset);
-// 	}
-// })();
 module.exports = {getBuild, mustGetBuild, makeSet, makeBlock, getPatch, getChampions};

@@ -17,7 +17,7 @@ let mainWindow = null;
 
 async function main() {
 	mainWindow = new BrowserWindow({
-		height: 600,
+		height: 650,
 		width: 500,
 		title: "Set Me Up",
 		center: true,
