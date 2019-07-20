@@ -112,14 +112,18 @@ async function main() {
 
 	const leagueConfFile = path.join(LEAGUE_PATH, "Config/ItemSets.json");
 	if (!fs.existsSync(leagueConfFile)) {
-		const message = "Please create at least one set with the game client so that config file gets created.";
+		const message = "Please create at least one set with the game client.";
 		process.send(JSON.stringify({type: "INFO", procId: 0, data: message}));
 		console.error(message);
 		process.exit(1);
 	}
+	if (!fs.existsSync(path.join(__dirname, "data"))) {
+		fs.mkdirSync(path.join(__dirname, "data"));
+	}
 	let leagueFileJson = JSON.parse(fs.readFileSync(leagueConfFile).toString());
 
-	if (process.argv.indexOf("backup") !== -1){
+
+	if (process.argv.indexOf("backup") !== -1) {
 		fs.writeFileSync(leagueConfFile + ".bak", JSON.stringify(leagueFileJson));
 		fs.writeFileSync(path.join(__dirname, "data/sets.json.bak"), JSON.stringify(leagueFileJson));
 	}
