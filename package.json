@@ -8,7 +8,7 @@
     "start": "NODE_ENV=development node src/fetch.js",
     "time": "NODE_ENV=development time node src/fetch.js",
     "build-linux": "electron-packager ./ setmeup --out=./build --platform=linux --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore && cp ./node_modules/axios/lib/helpers/buildURL.js ./build/setmeup-linux-x64/resources/app/node_modules/axios/lib/helpers/ &&  sudo chown root:root ./build/setmeup-linux-x64/chrome-sandbox && sudo chmod 4755 ./build/setmeup-linux-x64/chrome-sandbox",
-    "build-windows": "electron-packager ./ setmeup --out=./build --platform=win32 --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore && && cp ./node_modules/axios/lib/helpers/buildURL.js ./build/setmeup-win32-x64/resources/app/node_modules/axios/lib/helpers/"
+    "build-windows": "electron-packager ./ setmeup --out=./build --platform=win32 --arch=x64 --overwrite --ignore=./build --ignore=.idea --ignore=.eslintrc.json --ignore=.gitignore && cp ./node_modules/axios/lib/helpers/buildURL.js ./build/setmeup-win32-x64/resources/app/node_modules/axios/lib/helpers/"
   },
   "keywords": [],
   "author": "",
