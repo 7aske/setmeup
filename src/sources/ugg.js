@@ -166,7 +166,7 @@ async function getPatch() {
 
 	const $ = cheerio.load(html);
 
-	const patchSelector = "#content > div > div > div.filter-manager > div > div > div:nth-child(5) > div.default-select.filter-select.css-1y6z7r9 > div > div.default-select__value-container.default-select__value-container--has-value.css-1hwfws3 > div > div > span";
+	const patchSelector = "#content > div > div > div.filter-manager > div > div > div:nth-child(5) > div:nth-child(2) > div > div > div.default-select__value-container.default-select__value-container--has-value.css-1hwfws3 > div > div > span";
 	const patchTag = $(patchSelector)[0].children[0];
 	console.log(patchTag);
 	return patchTag.data;
