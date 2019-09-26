@@ -5,9 +5,12 @@ const helpers = require("../helpers");
 const uuid = require("uuid/v1");
 
 let items;
-const itemsUrl = "https://static.u.gg/assets/lol/riot_static/9.14.1/data/en_US/item.json";
 (async function () {
-	items = (await axios.get(itemsUrl)).data;
+	const itemsUrl = (patch) => {
+		return `https://static.u.gg/assets/lol/riot_static/${patch}.1/data/en_US/item.json`;
+	};
+	const patches = (await axios.get("https://raw.githubusercontent.com/CommunityDragon/Data/master/patches.json")).data.patches;
+	items = (await axios.get(itemsUrl(patches[patches.length - 1].name))).data;
 })();
 
 function getSkillUps(parent) {
